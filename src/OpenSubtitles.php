@@ -1,6 +1,7 @@
 <?php namespace iWedmak\SubtitleSearch;
 
 use iWedmak\ExtraCurl\Parser;
+use iWedmak\Helper\Mate;
 
 class OpenSubtitles implements SubtitleSearchInterface 
 {
@@ -11,20 +12,24 @@ class OpenSubtitles implements SubtitleSearchInterface
         {
             $client=new Parser;
         }
-        $client->setAgent('mobile');
         if($resp=$client->get($url, $cache))
         {
             $html=new \Htmldom;
             $html->str_get_html($resp);
-            $stream=Search::makeRes
+            list($title, $trash)=explode('.srt', $html->find('img[title*=Subtitle filename]', 0)->parent()->plaintext, 2);
+            $lang=Mate::match('- [*] (', $html->find('a[title*=All subtitles for this movie in this language]', 0)->attr['title']);
+            $id=preg_replace('/[^0-9]/', '', $html->find('a[title=Download]', 0)->attr['href']);
+            //pre($html->find('a[title=Download]', 0)->attr['href']);
+            $subtitle=Search::makeRes
                 (
-                    'VodLocker', 
+                    'OpenSubtitles', 
                     $url, 
-                    $html->find('td#file_title', 0)->plaintext, 
-                    @$html->find('video', 0)->attr['poster'], 
-                    @$html->find('video source', 0)->attr['src']
+                    $title,
+                    $html->find('time', 0)->attr['datetime'], 
+                    $lang,
+                    $file="http://dl.opensubtitles.org/en/download/sub/vrf-".dechex($id)."/".$id
                 );
-            return $stream;
+            return $subtitle;
         }
         return Search::makeError($client);
         
@@ -36,7 +41,6 @@ class OpenSubtitles implements SubtitleSearchInterface
         {
             $client=new Parser;
         }
-        //$client->setAgent('mobile');
         if($resp=$client->get($url, $cache))
         {
             $html=new \Htmldom;
@@ -59,7 +63,12 @@ class OpenSubtitles implements SubtitleSearchInterface
             }
             return $result;
         }
-        return Search::makeError($client);
+        $error=Search::makeError($client);
+        if($error['error_code']==301 || $error['error_code']==302)
+        {
+            return OpenSubtitles::page($client->redirect(), $cache, $client);
+        }
+        return $error;
     }
     
 }

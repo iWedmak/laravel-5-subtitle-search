@@ -30,7 +30,7 @@ class Search
     public static function makeError($client)
     {
         $array=[
-                'error_code'=>$client->c->error_code, 
+                'error_code'=>($client->c->error_code)?$client->c->error_code:$client->c->http_status_code, 
                 'error'=>$client->c->error, 
                 'response_headers'=>$client->c->response_headers,
             ];

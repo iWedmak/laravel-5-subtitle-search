@@ -12,7 +12,8 @@
     "require": {
         "php": ">=5.5.0",
         "laravel/framework": "5.*   ",
-        "iwedmak/extra-curl": "*"
+        "iwedmak/extra-curl": "*",
+        "iwedmak/helper": "*"
     },
     "autoload": {
         "psr-4": {
