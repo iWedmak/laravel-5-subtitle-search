@@ -19,7 +19,6 @@ class OpenSubtitles implements SubtitleSearchInterface
             list($title, $trash)=explode('.srt', $html->find('img[title*=Subtitle filename]', 0)->parent()->plaintext, 2);
             $lang=Mate::match('- [*] (', $html->find('a[title*=All subtitles for this movie in this language]', 0)->attr['title']);
             $id=preg_replace('/[^0-9]/', '', $html->find('a[title=Download]', 0)->attr['href']);
-            //pre($html->find('a[title=Download]', 0)->attr['href']);
             $subtitle=Search::makeRes
                 (
                     'OpenSubtitles', 
