@@ -2,6 +2,7 @@
 
 use iWedmak\ExtraCurl\Parser;
 use iWedmak\Helper\Mate;
+use \Comodojo\Zip\Zip as Zip;
 
 class OpenSubtitles implements SubtitleSearchInterface 
 {
@@ -12,7 +13,7 @@ class OpenSubtitles implements SubtitleSearchInterface
         {
             $client=new Parser;
         }
-        if($resp=$client->get($url, $cache))
+        if($resp=$client->get($url, $cache, 'file'))
         {
             $html=new \Htmldom;
             $html->str_get_html($resp);
@@ -30,8 +31,12 @@ class OpenSubtitles implements SubtitleSearchInterface
                 );
             return $subtitle;
         }
-        return Search::makeError($client);
-        
+        $error=Search::makeError($client);
+        if($error['error_code']==301 || $error['error_code']==302)
+        {
+            return OpenSubtitles::page($client->redirect(), $cache, $client);
+        }
+        return $error;
     }
     
     public static function search($url, $cache=5, $client=false)
@@ -63,11 +68,26 @@ class OpenSubtitles implements SubtitleSearchInterface
             return $result;
         }
         $error=Search::makeError($client);
+        pre($url);
+        pre($error);
         if($error['error_code']==301 || $error['error_code']==302)
         {
             return OpenSubtitles::page($client->redirect(), $cache, $client);
         }
         return $error;
+    }
+    
+    public static function file($url, $cache=5, $client=false)
+    {
+        if(!$client)
+        {
+            $client=new Parser;
+        }
+        $sub=$client->get($url, $cache, 'file');
+        $name=Mate::clat($url);
+        $path=public_path('subtitles/temp/'.Mate::clat($url).'.zip');
+        file_put_contents($path, $sub);
+        return $path;
     }
     
 }
