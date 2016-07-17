@@ -10,11 +10,10 @@ define('SRT_STATE_BLANK',     3);
 class Search 
 {
 
-    public static function url($url_template, $str, $lang, $lang_id, $season, $ep)
+    public static function url($url_template, $str, $season, $ep, $lang_id='')
     {
         $string=urlencode(str_replace( array( '\'', '"', ',', "'", "!" , ';', '<', '>', ')', '('), '', $str));
-        $search_string = str_replace("{lang}", $lang, $url_template);
-        $search_string = str_replace("{lang_id}", $lang_id, $search_string);
+        $search_string = str_replace("{lang_id}", $lang_id, $url_template);
         $search_string = str_replace("{season}", $season, $search_string);
         $search_string = str_replace("{ep}", $ep, $search_string);
         $search_string = str_replace("{serial_name}", $string, $search_string);

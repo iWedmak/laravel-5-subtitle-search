@@ -68,8 +68,6 @@ class OpenSubtitles implements SubtitleSearchInterface
             return $result;
         }
         $error=Search::makeError($client);
-        pre($url);
-        pre($error);
         if($error['error_code']==301 || $error['error_code']==302)
         {
             return OpenSubtitles::page($client->redirect(), $cache, $client);
